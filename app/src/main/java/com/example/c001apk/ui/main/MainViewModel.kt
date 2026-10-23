@@ -31,11 +31,10 @@ class MainViewModel @Inject constructor(
                     val appInfo = result.getOrNull()
                     if (appInfo?.data != null) {
                         try {
-                            PrefManager.VERSION_NAME = appInfo.data.apkversionname ?: ""
-                            PrefManager.API_VERSION = "13"
-                            PrefManager.VERSION_CODE = appInfo.data.apkversioncode ?: ""
-                            PrefManager.USER_AGENT =
-                                "Dalvik/2.1.0 (Linux; U; Android ${PrefManager.ANDROID_VERSION}; ${PrefManager.MODEL} ${PrefManager.BUILDNUMBER}) (#Build; ${PrefManager.BRAND}; ${PrefManager.MODEL}; ${PrefManager.BUILDNUMBER}; ${PrefManager.ANDROID_VERSION}) +CoolMarket/${appInfo.data.apkversionname}-${appInfo.data.apkversioncode}-${Constants.MODE}"
+                            syncVersionParams(
+                                appInfo.data.apkversionname,
+                                appInfo.data.apkversioncode
+                            )
                         } catch (e: Exception) {
                             e.printStackTrace()
                         }
@@ -44,6 +43,36 @@ class MainViewModel @Inject constructor(
                     getCheckLoginInfo()
                 }
         }
+    }
+
+    /**
+     * 将服务端返回的酷安版本号同步到请求参数。
+     * 仅在返回版本不低于内置版本（Constants.VERSION_NAME）时才应用，
+     * 防止旧数据或异常响应把客户端版本回退到服务端白名单以下，导致
+     * 「评论接口异常，请尝试升级到新版酷安」。
+     */
+    private fun syncVersionParams(name: String?, code: String?) {
+        if (name.isNullOrEmpty() || code.isNullOrEmpty()) return
+        if (!versionAtLeast(name, Constants.VERSION_NAME)) return
+        PrefManager.VERSION_NAME = name
+        PrefManager.VERSION_CODE = code
+        // API_VERSION 取 VERSION_NAME 的首段，与 CoolapkReviver 的改写表一致
+        PrefManager.API_VERSION = name.substringBefore(".")
+        PrefManager.USER_AGENT =
+            "Dalvik/2.1.0 (Linux; U; Android ${PrefManager.ANDROID_VERSION}; ${PrefManager.MODEL} ${PrefManager.BUILDNUMBER}) (#Build; ${PrefManager.BRAND}; ${PrefManager.MODEL}; ${PrefManager.BUILDNUMBER}; ${PrefManager.ANDROID_VERSION}) +CoolMarket/$name-$code-${Constants.MODE}"
+    }
+
+    private fun versionAtLeast(candidate: String, floor: String): Boolean {
+        fun parse(version: String): List<Int> =
+            version.split(".").map { it.filter { c -> c.isDigit() }.toIntOrNull() ?: 0 }
+        val a = parse(candidate)
+        val b = parse(floor)
+        for (i in 0 until maxOf(a.size, b.size)) {
+            val x = a.getOrElse(i) { 0 }
+            val y = b.getOrElse(i) { 0 }
+            if (x != y) return x > y
+        }
+        return true
     }
 
     private fun getCheckLoginInfo() {

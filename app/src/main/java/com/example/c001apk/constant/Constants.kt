@@ -14,9 +14,15 @@ object Constants {
     const val CHANNEL = "coolapk"
     const val MODE = "universal"
     const val APP_LABEL = "token://com.coolapk.market/dcf01e569c1e3db93a3d0fcf191a622c"
-    const val VERSION_NAME = "13.4.1"
-    const val API_VERSION = "13"
-    const val VERSION_CODE = "2312121"
+    // 酷安服务端对 v6 接口有版本白名单，版本过低时评论区等接口统一返回 403
+    // （「评论接口异常，请尝试升级到新版酷安」）。
+    // 修复方案来自 CoolapkReviver（https://github.com/fentia/CoolapkReviver）：
+    // 请求时自称服务端认可的新版本即可通过校验，以下常量即其改写的目标版本。
+    const val VERSION_NAME = "16.6.4"
+    const val API_VERSION = "16"
+    const val VERSION_CODE = "2609291"
+    // X-App-Supported 与 X-App-Code 取不同值，同样来自 CoolapkReviver 的改写表
+    const val APP_SUPPORTED = "2310232"
     val USER_AGENT =
         "Dalvik/2.1.0 (Linux; U; Android ${PrefManager.ANDROID_VERSION}; ${PrefManager.MODEL} ${PrefManager.BUILDNUMBER}) (#Build; ${PrefManager.BRAND}; ${PrefManager.MODEL}; ${PrefManager.BUILDNUMBER}; ${PrefManager.ANDROID_VERSION}) +CoolMarket/${PrefManager.VERSION_NAME}-${PrefManager.VERSION_CODE}-${MODE}"
 

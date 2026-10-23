@@ -2,6 +2,36 @@
 
 fake coolapk
 
+> **本项目为 [bggRGjQaUbCoE/c001apk](https://github.com/bggRGjQaUbCoE/c001apk) 的修复版**，
+> 修复「评论接口异常，请尝试升级到新版酷安」问题。
+>
+> 酷安服务端对 v6 接口做了版本白名单，客户端版本过低时，评论、私信等接口统一返回 403。
+> 修复方法来自 [CoolapkReviver](https://github.com/fentia/CoolapkReviver)：
+> 请求时自称服务端认可的新版本即可通过校验。本仓库将其改写表直接内置到客户端：
+>
+> | Header | 原值 | 修复后 |
+> | --- | --- | --- |
+> | `X-App-Version` | 13.4.1 | 16.6.4 |
+> | `X-App-Code` | 2312121 | 2609291 |
+> | `X-Api-Version` | 13 | 16 |
+> | `X-App-Supported` | 2312121 | 2310232 |
+> | `User-Agent` | +CoolMarket/13.4.1-2312121 | +CoolMarket/16.6.4-2609291 |
+
+## 下载（Release 直链）
+
+GitHub Actions 自动构建 APK 并发布到 Release，`latest` 为固定直链，始终指向最新构建：
+
+- Release 构建（推荐安装）：<https://github.com/Map9876/c001apk-comments/releases/latest/download/c001apk-release.apk>
+- Debug 构建：<https://github.com/Map9876/c001apk-comments/releases/latest/download/c001apk-debug.apk>
+
+> 未配置签名密钥时 Release 包使用 debug 密钥签名，覆盖安装旧版需先卸载。
+
+## 评论接口修复细节
+
+- `Constants.VERSION_NAME / VERSION_CODE / API_VERSION` 更新为服务端白名单认可的版本，新增 `APP_SUPPORTED`（2310232）用于 `X-App-Supported`。
+- 启动时从服务端同步酷安版本号的逻辑（`MainViewModel.fetchAppInfo`）增加了下限保护：只有同步到的版本不低于内置版本时才应用，避免回退到旧版本再次触发 403。
+- 老用户升级后会自动迁移本地保存的旧版本参数（一次性），无需手动清除数据。
+
 Token/LoginUtil from: [CoolbbsYou](https://github.com/WaitFme/CoolbbsYou)
 
 ## 声明
