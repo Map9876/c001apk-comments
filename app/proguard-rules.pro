@@ -213,7 +213,7 @@
 -dontwarn org.apache.commons.codec.binary.**
 
 # sketch-gif 的 LibraryLoader 在 System.loadLibrary 失败时回退调用
-# pl.droidsonoids.relinker.ReLinker（该库已随 JCenter 下架，由
-# SketchImageViewLoader 内的等价 stub 提供）；R8 对缺失类报错，
-# 与 AGP 自动生成的 missing_rules.txt 规则一致。
--dontwarn pl.droidsonoids.relinker.**
+# pl.droidsonoids.relinker.ReLinker（该库已随 JCenter 下架，由 local-maven
+# 中的等价 stub 提供）；R8 对缺失类报错，规则与 AGP 自动生成的
+# missing_rules.txt 一致。
+-dontwarn pl.droidsonoids.relinker.ReLinker
