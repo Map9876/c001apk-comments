@@ -1,7 +1,6 @@
 package com.example.c001apk.util
 
 import com.example.c001apk.constant.Constants.APP_ID
-import com.example.c001apk.constant.Constants.APP_SUPPORTED
 import com.example.c001apk.constant.Constants.CHANNEL
 import com.example.c001apk.constant.Constants.DARK_MODE
 import com.example.c001apk.constant.Constants.LOCALE
@@ -34,7 +33,6 @@ object AddCookiesInterceptor : Interceptor {
             addHeader("X-Dark-Mode", DARK_MODE)
             addHeader("X-App-Channel", CHANNEL)
             addHeader("X-App-Mode", MODE)
-            addHeader("X-App-Supported", APP_SUPPORTED)
             addHeader("Content-Type", "application/x-www-form-urlencoded")
             if (PrefManager.isLogin)
                 addHeader(

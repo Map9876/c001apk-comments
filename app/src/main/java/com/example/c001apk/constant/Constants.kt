@@ -14,15 +14,15 @@ object Constants {
     const val CHANNEL = "coolapk"
     const val MODE = "universal"
     const val APP_LABEL = "token://com.coolapk.market/dcf01e569c1e3db93a3d0fcf191a622c"
-    // 酷安服务端对 v6 接口有版本白名单，版本过低时评论区等接口统一返回 403
-    // （「评论接口异常，请尝试升级到新版酷安」）。
-    // 修复方案来自 CoolapkReviver（https://github.com/fentia/CoolapkReviver）：
-    // 请求时自称服务端认可的新版本即可通过校验，以下常量即其改写的目标版本。
-    const val VERSION_NAME = "16.6.4"
-    const val API_VERSION = "16"
-    const val VERSION_CODE = "2609291"
-    // X-App-Supported 与 X-App-Code 取不同值，同样来自 CoolapkReviver 的改写表
-    const val APP_SUPPORTED = "2310232"
+    // 版本标识保持上游原值（13.4.1）。
+    // 曾经按 CoolapkReviver 方案伪装成 16.6.4 以绕过评论区 403，但实测
+    // （2026-10，同一客户端对照）：
+    //   13.4.1 -> 详情/列表/用户页正常，评论区 403
+    //   16.6.4 -> 详情+评论区全部返回「当前访问需要验证码」（验证码 gate）
+    // 即伪装新版本并不能修好评论区，反而把详情页也弄挂了，故回退。
+    const val VERSION_NAME = "13.4.1"
+    const val API_VERSION = "13"
+    const val VERSION_CODE = "2312121"
     val USER_AGENT =
         "Dalvik/2.1.0 (Linux; U; Android ${PrefManager.ANDROID_VERSION}; ${PrefManager.MODEL} ${PrefManager.BUILDNUMBER}) (#Build; ${PrefManager.BRAND}; ${PrefManager.MODEL}; ${PrefManager.BUILDNUMBER}; ${PrefManager.ANDROID_VERSION}) +CoolMarket/${PrefManager.VERSION_NAME}-${PrefManager.VERSION_CODE}-${MODE}"
 
