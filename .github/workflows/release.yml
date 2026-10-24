@@ -47,6 +47,16 @@ jobs:
           mkdir -p dist
           cp app/build/outputs/apk/release/c001apk_*.apk dist/c001apk-release.apk
 
+      # 共存版：包名改为 com.example.c001apk.coexist，可与旧版（含原仓库构建）同时安装，
+      # 互不影响覆盖安装；数据独立，收藏夹不继承。
+      - name: Build coexist release
+        id: buildCoexistRelease
+        run: |
+          sed -i 's|applicationId = "com.example.c001apk"|applicationId = "com.example.c001apk.coexist"|' app/build.gradle.kts
+          ./gradlew :app:assembleRelease
+          cp app/build/outputs/apk/release/c001apk_*.apk dist/c001apk-coexist-release.apk
+          git checkout app/build.gradle.kts
+
       - name: Build debug
         id: buildDebug
         run: |
@@ -71,16 +81,19 @@ jobs:
           make_latest: true
           files: |
             dist/c001apk-release.apk
+            dist/c001apk-coexist-release.apk
             dist/c001apk-debug.apk
           body: |
-            ## 直链下载（latest 固定地址，始终指向最新构建）
+            ## 下载（latest 固定地址，始终指向最新构建）
 
-            - Release 构建（推荐安装）：
-              https://github.com/Map9876/c001apk-comments/releases/latest/download/c001apk-release.apk
-            - Debug 构建：
-              https://github.com/Map9876/c001apk-comments/releases/latest/download/c001apk-debug.apk
+            | 文件 | 包名 | 适用场景 |
+            |---|---|---|
+            | [c001apk-release.apk](https://github.com/Map9876/c001apk-comments/releases/latest/download/c001apk-release.apk) | `com.example.c001apk` | 原包名，覆盖安装自己旧版用；**装原仓库构建的旧版会因签名不同被拒，需先卸载** |
+            | [c001apk-coexist-release.apk](https://github.com/Map9876/c001apk-comments/releases/latest/download/c001apk-coexist-release.apk) | `com.example.c001apk.coexist` | **共存版**，与旧版/原仓库版同时安装互不干扰，无需卸载；数据独立，收藏夹不继承 |
+            | [c001apk-debug.apk](https://github.com/Map9876/c001apk-comments/releases/latest/download/c001apk-debug.apk) | `com.example.c001apk` | Debug 构建，调试验证用 |
 
-            > 未配置签名密钥时 release 包使用 debug 密钥签名；若与旧版签名不一致，安装前请先卸载旧版。
+            > 收藏夹迁移请用电脑执行 `adb backup -f c001.ab -noapk com.example.c001apk` 备份旧版，
+            > 装新版后 `adb restore c001.ab` 恢复；嫌麻烦就直接装共存版，两个 app 各用各的。
 
             ## 修复内容
 
