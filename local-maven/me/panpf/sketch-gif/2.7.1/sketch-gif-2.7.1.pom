@@ -8,18 +8,12 @@
   <version>2.7.1</version>
   <packaging>aar</packaging>
   <name>sketch-gif</name>
-  <description>Vendored copy of me.panpf:sketch-gif:2.7.1 (delisted from all public repositories together with JCenter).</description>
+  <description>Vendored copy of me.panpf:sketch-gif:2.7.1 (delisted from all public repositories together with JCenter). classes.jar bytecode-patched to drop the unresolvable ReLinker fallback call.</description>
   <dependencies>
     <dependency>
       <groupId>androidx.annotation</groupId>
       <artifactId>annotation</artifactId>
       <version>1.0.1</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>pl.droidsonoids</groupId>
-      <artifactId>relinker</artifactId>
-      <version>1.3.1</version>
       <scope>runtime</scope>
     </dependency>
   </dependencies>
