@@ -73,7 +73,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.c001apk"
+        applicationId = "com.example.c001apk.comments"
         minSdk = 24
         targetSdk = 34
         versionCode = gitCommitCount

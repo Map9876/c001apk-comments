@@ -5,6 +5,7 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.c001apk.BuildConfig
 import com.example.c001apk.adapter.LoadingState
 import com.example.c001apk.logic.model.AppItem
 import com.example.c001apk.logic.model.UpdateCheckResponse
@@ -63,10 +64,10 @@ class AppListViewModel @Inject constructor(
                         lastUpdateTime = packageInfo.lastUpdateTime
                     }
 
-                    if (appItem.packageName != "com.example.c001apk")
+                    if (appItem.packageName != BuildConfig.APPLICATION_ID)
                         newItems.add(appItem)
 
-                    if (info.packageName != "com.example.c001apk")
+                    if (info.packageName != BuildConfig.APPLICATION_ID)
                         updateCheckJsonObject.put(
                             info.packageName,
                             "0,${packageInfo.longVersionCodeCompat},${Utils.getInstalledAppMd5(info)}"
