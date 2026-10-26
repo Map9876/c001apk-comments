@@ -4,6 +4,7 @@ import com.example.c001apk.BuildConfig
 import com.example.c001apk.logic.network.ApiService
 import com.example.c001apk.util.AddCookiesInterceptor
 import com.example.c001apk.util.LoginCookiesInterceptor
+import com.example.c001apk.util.captcha.CaptchaInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -117,6 +118,7 @@ object NetworkModule {
     fun provideOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(AddCookiesInterceptor)
+            .addInterceptor(CaptchaInterceptor)
             .addInterceptor(
                 HttpLoggingInterceptor().setLevel(
                     if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
@@ -133,6 +135,7 @@ object NetworkModule {
     fun provideNoOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(AddCookiesInterceptor)
+            .addInterceptor(CaptchaInterceptor)
             .addInterceptor(
                 HttpLoggingInterceptor().setLevel(
                     if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY

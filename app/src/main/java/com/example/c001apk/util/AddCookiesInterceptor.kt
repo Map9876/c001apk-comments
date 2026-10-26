@@ -6,8 +6,9 @@ import com.example.c001apk.constant.Constants.DARK_MODE
 import com.example.c001apk.constant.Constants.LOCALE
 import com.example.c001apk.constant.Constants.MODE
 import com.example.c001apk.constant.Constants.REQUEST_WITH
-import com.example.c001apk.util.CookieUtil.SESSID
-import com.example.c001apk.util.TokenDeviceUtils.getTokenV2
+import com.example.c001apk.util.CoolapkRequestPolicy.isApi
+import com.example.c001apk.util.captcha.ApiSessions
+import com.example.c001apk.util.captcha.SkipCaptcha
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
@@ -16,9 +17,12 @@ import java.io.IOException
 object AddCookiesInterceptor : Interceptor {
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
-        val builder: Request.Builder = chain.request().newBuilder()
+        val request = chain.request()
+        if (request.tag(SkipCaptcha::class.java) != null) return chain.proceed(request)
+
+        val builder: Request.Builder = request.newBuilder()
         val deviceCode = TokenDeviceUtils.getLastingDeviceCode()
-        val token = deviceCode.getTokenV2()
+        val token = TokenV3.create(deviceCode, PrefManager.VERSION_CODE.toInt())
         builder.apply {
             addHeader("User-Agent", PrefManager.USER_AGENT)
             addHeader("X-Requested-With", REQUEST_WITH)
@@ -34,12 +38,13 @@ object AddCookiesInterceptor : Interceptor {
             addHeader("X-App-Channel", CHANNEL)
             addHeader("X-App-Mode", MODE)
             addHeader("Content-Type", "application/x-www-form-urlencoded")
+            val parts = ArrayList<String>()
             if (PrefManager.isLogin)
-                addHeader(
-                    "Cookie",
-                    "uid=${PrefManager.uid}; username=${PrefManager.username}; token=${PrefManager.token}"
-                )
-            else addHeader("Cookie", SESSID)
+                parts.add("uid=" + PrefManager.uid + "; username=" + PrefManager.username + "; token=" + PrefManager.token)
+            else if (CookieUtil.SESSID.isNotEmpty()) parts.add(CookieUtil.SESSID)
+            val validate = if (isApi(request.url)) ApiSessions.validation() else null
+            if (validate != null) parts.add("validate=" + validate)
+            if (parts.isNotEmpty()) addHeader("Cookie", parts.joinToString("; "))
         }
         return chain.proceed(builder.build())
     }

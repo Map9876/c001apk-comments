@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.example.c001apk.constant.Constants
 import com.example.c001apk.ui.others.BugHandlerActivity
 import com.example.c001apk.util.PrefManager
+import com.example.c001apk.util.captcha.CaptchaCoordinator
 import dagger.hilt.android.HiltAndroidApp
 import net.mikaelzero.mojito.Mojito
 import net.mikaelzero.mojito.loader.glide.GlideImageLoader
@@ -21,6 +22,8 @@ class MyApplication : Application() {
         super.onCreate()
 
         context = applicationContext
+
+        registerActivityLifecycleCallbacks(CaptchaCoordinator)
 
         migrateVersionParams()
 
@@ -52,13 +55,13 @@ class MyApplication : Application() {
      */
     private fun migrateVersionParams() {
         val pref = getSharedPreferences("settings", MODE_PRIVATE)
-        if (pref.getBoolean("version_params_migrated", false)) return
         val name = pref.getString("VERSION_NAME", null)
+        val stale = name == "13.4.1"
+        if (pref.getBoolean("version_params_migrated", false) && !stale) return
         val code = pref.getString("VERSION_CODE", null)
         val api = pref.getString("API_VERSION", null)
-        val stale = name == "13.4.1" && code == "2312121" && api == "13"
         pref.edit().apply {
-            if (stale) {
+            if (stale || !pref.getBoolean("version_params_migrated", false)) {
                 putString("VERSION_NAME", Constants.VERSION_NAME)
                 putString("VERSION_CODE", Constants.VERSION_CODE)
                 putString("API_VERSION", Constants.API_VERSION)
