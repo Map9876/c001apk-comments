@@ -3,19 +3,24 @@
 fake coolapk
 
 > **本项目为 [bggRGjQaUbCoE/c001apk](https://github.com/bggRGjQaUbCoE/c001apk) 的修复版**，
-> 修复「评论接口异常，请尝试升级到新版酷安」问题。
+> 目标是修复「评论接口异常，请尝试升级到新版酷安」导致游客无法看评论的问题。
 >
-> 酷安服务端对 v6 接口做了版本白名单，客户端版本过低时，评论、私信等接口统一返回 403。
-> 修复方法来自 [CoolapkReviver](https://github.com/fentia/CoolapkReviver)：
-> 请求时自称服务端认可的新版本即可通过校验。本仓库将其改写表直接内置到客户端：
+> ⚠️ 仅伪装高版本号（[CoolapkReviver](https://github.com/fentia/CoolapkReviver) 方案，16.6.4）**并不能**修好评论区：
+> 实测 16.6.4 会把详情页也一起打进「当前访问需要验证码」的 gate，反而更糟。
+>
+> **真正让游客可见评论的修复**（V3 请求签名 + 网易云盾人机验证）移植自
+> [KiritoXDone/c001apk](https://github.com/KiritoXDone/c001apk)（AGPL-3.0）：
+> - `util/TokenV3.kt`：bcrypt cost=4 + lookup 表生成 `v3...` 签名，替代旧版 V2 token。
+> - `util/captcha/*` + `ui/captcha/CaptchaActivity`：服务端返回 `err_request_captcha_v2` 时，
+>   在 WebView 加载 `cstaticdun.126.net` 网易验证，解出 `validate` 后以 `NEC:<id前8>:<validate>` 回放。
+> - 客户端版本固定为酷安 **16.1.3**（API v16，versionCode 2604022），这是服务端对游客放行的最低版本门槛。
 >
 > | Header | 原值 | 修复后 |
 > | --- | --- | --- |
-> | `X-App-Version` | 13.4.1 | 16.6.4 |
-> | `X-App-Code` | 2312121 | 2609291 |
+> | `X-App-Version` | 13.4.1 | 16.1.3 |
+> | `X-App-Code` | 2312121 | 2604022 |
 > | `X-Api-Version` | 13 | 16 |
-> | `X-App-Supported` | 2312121 | 2310232 |
-> | `User-Agent` | +CoolMarket/13.4.1-2312121 | +CoolMarket/16.6.4-2609291 |
+> | `User-Agent` | +CoolMarket/13.4.1-2312121 | +CoolMarket/16.1.3-2604022 |
 
 ## 下载（Release 直链）
 
@@ -28,11 +33,14 @@ GitHub Actions 自动构建 APK 并发布到 Release，`latest` 为固定直链�
 
 ## 评论接口修复细节
 
-- `Constants.VERSION_NAME / VERSION_CODE / API_VERSION` 更新为服务端白名单认可的版本，新增 `APP_SUPPORTED`（2310232）用于 `X-App-Supported`。
+- 客户端版本固定为 `16.1.3`（`VERSION_CODE=2604022`，`API_VERSION=16`）。这是服务端对**游客**放行评论区的最低版本门槛：低于此（如原版 13.4.1）评论接口返回 `403 评论接口异常`；伪装成 16.6.4 又会触发全局验证码 gate，故取 16.1.3。
+- **V3 请求签名**（`util/TokenV3.kt`，移植自 KiritoXDone/c001apk）：服务端对 16.x 客户端要求 `v3...` 签名（bcrypt cost=4 + lookup 表），旧的 V2 token 已不被接受。所有请求经 `AddCookiesInterceptor` 自动加签。
+- **网易云盾验证码**（`util/captcha/*` + `ui/captcha/CaptchaActivity`）：服务端风控触发 `err_request_captcha_v2` 时弹 WebView 加载 `cstaticdun.126.net` 验证，解出 `validate` 后以 `NEC:<captchaId前8>:<validate>` 作为 `_v2_post_token` 查询参数或 `validate` Cookie 回放（24h 内复用）。
 - 启动时从服务端同步酷安版本号的逻辑（`MainViewModel.fetchAppInfo`）增加了下限保护：只有同步到的版本不低于内置版本时才应用，避免回退到旧版本再次触发 403。
 - 老用户升级后会自动迁移本地保存的旧版本参数（一次性），无需手动清除数据。
 
 Token/LoginUtil from: [CoolbbsYou](https://github.com/WaitFme/CoolbbsYou)
+评论区可见性修复（V3 签名 + 验证码）from: [KiritoXDone/c001apk](https://github.com/KiritoXDone/c001apk)（AGPL-3.0）
 
 ## 声明
 
