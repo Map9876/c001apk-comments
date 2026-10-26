@@ -74,6 +74,6 @@ object CaptchaCoordinator : Application.ActivityLifecycleCallbacks {
     override fun onActivityCreated(activity: Activity, state: Bundle?) = Unit
     override fun onActivityStarted(activity: Activity) = Unit
     override fun onActivityStopped(activity: Activity) = Unit
-    override fun onActivitySaveInstanceState(activity: Activity, state: Bundle?) = Unit
+    override fun onActivitySaveInstanceState(activity: Activity, state: Bundle) = Unit
     override fun onActivityDestroyed(activity: Activity) = Unit
 }
